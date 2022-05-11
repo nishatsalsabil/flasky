@@ -123,9 +123,7 @@ def get_one_car(car_id):
     if chosen_car is None: 
         return jsonify({'msg': f"Could not find car with ID '{car_id}'"}), 404
     
-    return jsonify(
-        chosen_car.to_dict()
-    )
+    return jsonify(chosen_car.to_dict())
 
 
 @cars_bp.route("/<car_id>", methods=["PATCH"])
