@@ -9,50 +9,41 @@ def create_car():
     request_body = request.get_json()
 
     new_car = Car(
-        driver=request_body["driver"],
-        team=request_body["team"],
+        driver_id=request_body["driver_id"],
         mass_kg=request_body["mass_kg"]
         )
 
     db.session.add(new_car)
     db.session.commit()
 
-    return jsonify({
-        "id": new_car.id,
-        "driver": new_car.driver,
-        "team": new_car.team,
-        "mass_kg": new_car.mass_kg
-    }), 201
-    #return make_response(jsonify(f"Book {new_car.name} successfully created"), 201) 
+    return {
+        "id": new_car.id
+    }, 201
+    
 
 @cars_bp.route("", methods=["GET"])
 def get_all_cars():
-    params = request.args
-    if "driver" in params and "team" in params:
-        driver_name = params["driver"]
-        team_name = params["team"]
-        cars = Car.query.filter_by(driver=driver_name, team=team_name)
-    elif "driver" in params:
-        driver_name = params["driver"]
-        cars = Car.query.filter_by(driver=driver_name)
-    elif "team" in params:
-        team_name = params["team"]
-        cars = Car.query.filter_by(team=team_name)
-    else:
-        cars = Car.query.all()
+    # params = request.args
+    # if "driver" in params and "team" in params:
+    #     driver_name = params["driver"]
+    #     team_name = params["team"]
+    #     cars = Car.query.filter_by(driver=driver_name, team=team_name)
+    # elif "driver" in params:
+    #     driver_name = params["driver"]
+    #     cars = Car.query.filter_by(driver=driver_name)
+    # elif "team" in params:
+    #     team_name = params["team"]
+    #     cars = Car.query.filter_by(team=team_name)
+    # else:
+    #     cars = Car.query.all()
 
     response = []
+    cars = Car.query.all()
     for car in cars:
-        response.append(
-            {
-                "id": car.id,
-                "driver": car.driver,
-                "team": car.team,
-                "mass_kg": car.mass_kg
-            }
-        )
+        response.append(car.to_dict())
 
     return jsonify(response)
+
 
 # ######## helper function ########
 # def validate_car(car_id):
@@ -127,20 +118,18 @@ def get_one_car(car_id):
     except ValueError:
         return jsonify({'msg': f"Invalid car ID: '{car_id}'. ID must be an integer"}), 400
     
-    car = Car.query.get(car_id)
+    chosen_car = Car.query.get(car_id)
 
-    if car is None: 
+    if chosen_car is None: 
         return jsonify({'msg': f"Could not find car with ID '{car_id}'"}), 404
     
-    return jsonify({
-            "id": car.id,
-            "driver": car.driver,
-            "team": car.team,
-            "mass_kg": car.mass_kg
-        })
+    return jsonify(
+        chosen_car.to_dict()
+    )
 
-@cars_bp.route("/<car_id>", methods=["PUT"])
-def update_car(car_id):
+
+@cars_bp.route("/<car_id>", methods=["PATCH"])
+def update_one_car(car_id):
     try:
         car_id = int(car_id)
     except ValueError:
@@ -148,20 +137,15 @@ def update_car(car_id):
 
     request_body = request.get_json()
 
-    if "driver" not in request_body or \
-        "team" not in request_body or \
-        "mass_kg" not in request_body:
-        return jsonify({'msg': f"Request must include driver, team, and mass_kg"}), 400
+    if "mass_kg" not in request_body:
+        return jsonify({'msg': f"Request must include mass_kg"}), 400
 
-    car = Car.query.get(car_id)
+    chosen_car = Car.query.get(car_id)
 
-    if car is None: 
+    if chosen_car is None: 
         return jsonify({'msg': f"Could not find car with ID '{car_id}'"}), 404
 
-
-    car.driver = request_body["driver"]
-    car.team = request_body["team"]
-    car.mass_kg = request_body["mass_kg"]
+    chosen_car.mass_kg = request_body["mass_kg"]
     
     db.session.commit()
 
@@ -176,12 +160,12 @@ def delete_car(car_id):
         return jsonify({'msg': f"Invalid car ID: '{car_id}'. ID must be an integer"}), 400
 
 
-    car = Car.query.get(car_id)
+    chosen_car = Car.query.get(car_id)
 
-    if car is None: 
+    if chosen_car is None: 
         return jsonify({'msg': f"Could not find car with ID '{car_id}'"}), 404
 
-    db.session.delete(car)
+    db.session.delete(chosen_car)
     db.session.commit()
 
     return jsonify({'msg': f" Deleted car with id {car_id}"})
