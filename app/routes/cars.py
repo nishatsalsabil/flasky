@@ -9,8 +9,7 @@ def create_car():
     request_body = request.get_json()
 
     new_car = Car(
-        driver_id=request_body["driver_id"],
-        mass_kg=request_body["mass_kg"]
+        driver_id=request_body["driver_id"]
         )
 
     db.session.add(new_car)
