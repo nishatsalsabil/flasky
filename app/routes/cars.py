@@ -17,7 +17,8 @@ def create_car():
     db.session.commit()
 
     return {
-        "id": new_car.id
+        "id": new_car.id,
+        "mass_kg": new_car.mass_kg
     }, 201
     
 
