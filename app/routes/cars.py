@@ -44,22 +44,22 @@ def get_all_cars():
     return jsonify(response)
 
 
-# ######## helper function ########
-# def validate_car(car_id):
-#     try:
-#         car_id = int(car_id)
+# helper function:
+def validate_car(car_id):
+    try:
+        car_id = int(car_id)
 
-#     except ValueError:
-#         abort(make_response(jsonify({'msg': f"Car {car_id} is invalid"}), 400))
-#         #return abort({'msg': f"Invalid car ID: '{car_id}'. ID must be an integer"}), 400
+    except ValueError:
+        abort(make_response(jsonify({'msg': f"Car {car_id} is invalid"}), 400))
+        #return abort({'msg': f"Invalid car ID: '{car_id}'. ID must be an integer"}), 400
 
-#     car = Car.query.get(car_id)
+    chosen_car = Car.query.get(car_id)
 
-#     if car is None: 
-#         abort(make_response({'msg': f"Car {car_id} not found"}, 404))
+    if chosen_car is None: 
+        abort(make_response({'msg': f"Car {car_id} not found"}, 404))
 
-#     return car 
-# ######## helper function ########
+    return chosen_car 
+
 
 
 # @cars_bp.route("/<car_id>", methods=["GET"])

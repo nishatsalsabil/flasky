@@ -1,5 +1,7 @@
 from app import db
 from app.models.drivers import Driver
+from app.models.cars import Car 
+from .cars import validate_car
 from flask import Blueprint, jsonify, make_response, request, abort 
 
 drivers_bp = Blueprint("drivers", __name__, url_prefix="/drivers")
@@ -57,3 +59,30 @@ def get_one_driver(driver_id):
     driver = validate_driver(driver_id)
 
     return jsonify(driver.to_dict()), 200
+
+
+@drivers_bp.route("/<driver_id>/cars", methods=["POST"])
+def add_cars_to_driver(driver_id):
+    driver = validate_driver(driver_id)
+    request_body = request.get_json()
+
+    try:
+        car_ids = request_body["car_ids"]
+    except TypeError:
+        return jsonify({'msg': f"Missing car_ids in request body"}), 400
+    
+    if not isinstance(car_ids, list):
+        return jsonify({'msg': f"Expected list of car ids"}), 400
+
+    cars = []
+    for id in car_ids:
+        cars.append(validate_car(id))
+
+    for car in cars:
+        car.driver = driver
+    
+    db.session.commit()
+
+    return jsonify({'msg': f"Added cars to driver {driver_id}"}), 200
+
+
